@@ -1,0 +1,12 @@
+This app automatically adds indentation to meet the requirements of python interpreter for identifying code blocks.
+
+This tool adds indentation to the block of python code that starts with #{ symbols and ends with #} symbols.
+Usage:
+py indentation.py -h : Presents the user manual
+py indentation.py -I inputfile: indents input file
+py indentation.py -I inputfile1,inputfile2,etc. : Can give more than one input file and indents them all
+py indentation.py -I inputfile -o outputfile : indented input file is stored in the outputfile. Inputfile is not changed
+py indentation.py -i InputFile -Aw word: To create a new outputfile, with a suffix added to the inputfile name.
+py indentation.py -I inputfile1,inputfile2, etc. -o outputfile1,outputfile2,etc.: At a time, can give many input files and output files, however number of output files should match the number of input files
+py indentation.py -F InputDirectory: Indents the .PY files present inside the given directory
+py indentation.py -F InputDirectory -D OutputDirectory: indented input file from the InputDirectory are stored in the OutputDirectory. Inputfiles are not changed
