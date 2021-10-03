@@ -50,7 +50,7 @@ def display_help():
 	print(h)
 
 #name=add_indentation
-#this function will  indent the code present in a file and then it will save and return it in a string
+#this function will  indent the code present in a file and then it will save and return it as a string
 #It will take 2 parameters: inputfile and symbols
 def add_indentation(inputfile, symbols):
 #an empty string veriable to contain the indented code
