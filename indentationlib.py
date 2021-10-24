@@ -86,7 +86,10 @@ def display_help():
 	py indentation.py -F InputDirectory: Indents the .PY files present inside the given directory\n
 	py indentation.py -F InputDirectory -D OutputDirectory: indented input file from the InputDirectory are stored in the OutputDirectory. Inputfiles are not changed\n
 	py indentation.py -C StartingSymbol EndingSymbol: Changes the by defauld '#{' and '#}' symbols\n
-	py indentation.py -FUNC FunctionName -F FolderName: Checks whether a function defined with the given name exist in any of the files of given directory
+	py indentation.py -FUNC FunctionName -F FolderName: Checks whether a function defined with the given name exist in any of the files of given directory\n
+	py indentation.py -B FolderName: Creates a branch where a user can then edit the code\n
+	py indentation.py -M FolderName: Merges a folder with the main folder\n
+	py indentation.py -S: Presents a search field to the user.
 """
 	print(help)
 
