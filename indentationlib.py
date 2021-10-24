@@ -8,6 +8,7 @@ __author__= "Arkam, Rohit, Santosh "
 import sys
 import os
 import subprocess as sp
+import branchlib as bch
 
 #Name: find_function
 #Purpose: Open a file and verify whether the given function exist in the file. If yes, then it tells from which line it is starting
@@ -49,7 +50,7 @@ def find_function(fname, function):
 # name=verification
 #this function is for verifying symbols 
 def verification(input):
-	s = ["-i", "-o", "-aw", "-f", "-d", "-c", "-func"]
+	s = ["-i", "-o", "-aw", "-f", "-d", "-c", "-func", "-b", "-m"]
 	lst = []
 	flag = False
 	for i in input:
@@ -156,7 +157,7 @@ def add_prefix(inputfile, word):
 
 
 #name=path
-#this function will check whether the given path is in the same working directory or in another
+#this function will check whether the given path is in the same working directory or in another one
 def path(a):
 #going through each list element and comparing that the 2nd item of that element is ':' or not.
 #if the 2nd item is ':', then it means that user have provided a path
@@ -218,6 +219,8 @@ def splitting_elements(command):
 	ifolder = []
 	ofolder = []
 	function = []
+	branch = []
+	merge = []
 	space = "    "
 	b = ""
 #creating a string by adding all the list elements into it.
@@ -274,8 +277,18 @@ def splitting_elements(command):
 			del(x[0])
 			for j in x:
 				function.append(j)
+		if i.startswith("-b"):
+			x= i.split()
+			del(x[0])
+			for j in x:
+				branch.append(j)
+		if i.startswith("-m"):
+			x= i.split()
+			del(x[0])
+			for j in x:
+				merge.append(j)
 
-	if len(ifiles) == 0 and len(ifolder) == 0:
+	if len(ifiles) == 0 and len(ifolder) == 0 and len(branch) == 0 and len(merge) == 0:
 		print("Inorder to use the application, you need to use '-i' or '-f' command.")
 		sys.exit()
 	if len(ofiles) > 0 and len(word) > 0:
@@ -284,7 +297,13 @@ def splitting_elements(command):
 	if len(ifolder) == 0 and len(function) > 0:
 		print("You can not use '-func' command without '-f' command")
 		sys.exit()
-	return ifiles, ofiles, word, ifolder, ofolder, symbols, function
+	if len(branch) > 1:
+		print("You can not branch two folders together.")
+		sys.exit()
+	if len(merge) > 1:
+		print("You can not merge more than one branch at a time.")
+		sys.exit()
+	return ifiles, ofiles, word, ifolder, ofolder, symbols, function, branch, merge
 
 
 def performing_operations(command):
@@ -297,6 +316,8 @@ def performing_operations(command):
 	ofolder = a[4]
 	symbols = a[5]
 	function = a[6]
+	branch = a[7]
+	merge = a[8]
 
 #checking the 'ifiles' length to ensure that the user have given file name(s)
 	if len(ifiles) > 0:
@@ -402,3 +423,9 @@ def performing_operations(command):
 					find_function(flst[j], function)
 				else:
 					print("Your file name must contain '.py' extention", flst[j])
+#Code for creating a branch
+	if len(branch) == 1:
+		bch.create_branch(branch)
+#Code for merging a branch
+	if len(merge) == 1:
+		bch.merge_branch(merge)
