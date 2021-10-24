@@ -7,11 +7,49 @@ __author__= "Arkam, Rohit, Santosh "
 
 import sys
 import os
+import subprocess as sp
+
+#Name: find_function
+#Purpose: Open a file and verify whether the given function exist in the file. If yes, then it tells from which line it is starting
+#Return: Nothing
+def find_function(fname, function):
+	found = 0
+	notfound = 0
+	for i in function:
+		funcName = "def " + i + "("
+		functionName = funcName.strip()
+		try:
+			fh = open(fname)
+			count = 0
+			for line in fh:
+				count += 1
+				lines = line.strip()
+				if lines.startswith(functionName):
+					print("Yes, a function named '" + i + "' is available in '" + fname + "' file and it is located at line " + str(count) + ".")
+					print('"' + lines + '"')
+					found = 1
+					try:
+						fileOpen = input("Would you like to open '" + fname + "' file? \n Y/N: ")
+						if fileOpen.lower() == 'y':
+							programName = "notepad.exe"
+							fileName = fname
+							sp.Popen([programName, fileName])
+					except:
+						print("")
+				else:
+					notfound = 1
+					continue
+			if found == 0 and notfound == 1:
+				print("Can not find a function named '" + i + "' in '" + fname + "' file.")
+			fh.close()
+		except:
+			print("Not able to open '" + str(fname) + "' file.")
+
 
 # name=verification
 #this function is for verifying symbols 
 def verification(input):
-	s = ["-i", "-o", "-aw", "-f", "-d", "-c"]
+	s = ["-i", "-o", "-aw", "-f", "-d", "-c", "-func"]
 	lst = []
 	flag = False
 	for i in input:
@@ -20,7 +58,7 @@ def verification(input):
 			lst.append(j)
 
 	if len(lst) == 0:
-		print("No commands given.\nTo know more about the application, use '-h'")
+		print("No commands given.\nTo know more about the application, use: 'py indentation.py -h'")
 		flag = True
 	else:
 		for i in lst:
@@ -37,17 +75,20 @@ def verification(input):
 #name=display_help
 #this function will provide a brief user manual
 def display_help():
-	h="""This tool adds indentation to the block of python code that starts with #{ symbol and ends with #} symbol\
-	Usage:\
-	py indentation.py -I inputfile: indents input file\
-	py indentation.py -I inputfile1,inputfile2,etc. : Can give more than one input file and indents them all\
-	py indentation.py -I inputfile -o outputfile : indented input file is stored in the outputfile. Inputfile is not changed\
-	py indentation.py -i InputFile -Aw word: To create a new outputfile, with a suffix added to the inputfile name.\
-	py indentation.py -I inputfile1,inputfile2, etc. -o outputfile1,outputfile2,etc.: At a time, can give many input files and output files, however number of output files should match the number of input files\
-	py indentation.py -F InputDirectory: Indents the .PY files present inside the given directory\
-	py indentation.py -F InputDirectory -D OutputDirectory: indented input file from the InputDirectory are stored in the OutputDirectory. Inputfiles are not changed\
+	help = """This tool adds indentation to the block of python code that starts with #{ symbol and ends with #} symbol\n
+	Usage:\n
+	py indentation.py -I inputfile: indents input file\n
+	py indentation.py -I inputfile1,inputfile2,etc. : Can give more than one input file and indents them all\n
+	py indentation.py -I inputfile -o outputfile : indented input file is stored in the outputfile. Inputfile is not changed\n
+	py indentation.py -i InputFile -Aw word: To create a new outputfile, with a suffix added to the inputfile name.\n
+	py indentation.py -I inputfile1,inputfile2, etc. -o outputfile1,outputfile2,etc.: At a time, can give many input files and output files, however number of output files should match the number of input files\n
+	py indentation.py -F InputDirectory: Indents the .PY files present inside the given directory\n
+	py indentation.py -F InputDirectory -D OutputDirectory: indented input file from the InputDirectory are stored in the OutputDirectory. Inputfiles are not changed\n
+	py indentation.py -C StartingSymbol EndingSymbol: Changes the by defauld '#{' and '#}' symbols\n
+	py indentation.py -FUNC FunctionName -F FolderName: Checks whether a function defined with the given name exist in any of the files of given directory
 """
-	print(h)
+	print(help)
+
 
 #name=add_indentation
 #this function will  indent the code present in a file and then it will save and return it as a string
@@ -93,6 +134,7 @@ def add_indentation(inputfile, symbols):
 		print("Either the file name is incorrect or file doesn't exist.", inputfile)
 	return indentedcode
 
+
 #name=copy_code
 #this function will copy the code from string Variable  to output file
 def copy_code(outputfile, indentedcode):
@@ -103,16 +145,18 @@ def copy_code(outputfile, indentedcode):
 		fh.close()
 		print(outputfile, "is indented")
 
+
 #name=add_prefix
-#if user give the word for output file then this function will take that word and creating the files 
+#if a user gives a word for creating new output files, then this function will take that word, add it as a prefix to the input file  and create the output files 
 def add_prefix(inputfile, word):
 	a = inputfile.split(".")
 #Adding a a prefix to the input file names and then appending them to the list
 	x = a[0] + word[0] + ".py"
 	return x
 
+
 #name=path
-#this function will check that user give the proper path or give the same directory  folder
+#this function will check whether the given path is in the same working directory or in another
 def path(a):
 #going through each list element and comparing that the 2nd item of that element is ':' or not.
 #if the 2nd item is ':', then it means that user have provided a path
@@ -125,11 +169,12 @@ def path(a):
 		x = cwd + "\\" + a
 	return x
 
+
 #name=path_verification
 #this function will check the path is Correct  or not
 def path_verification(a):
 	b = path(a)
-#going through each path given in the list and checking that the path exist or not
+#going through each path given in the list and checking whether the path exist or not
 	try:
 		os.chdir(a)
 		x = b
@@ -172,6 +217,7 @@ def splitting_elements(command):
 	word = []
 	ifolder = []
 	ofolder = []
+	function = []
 	space = "    "
 	b = ""
 #creating a string by adding all the list elements into it.
@@ -207,7 +253,7 @@ def splitting_elements(command):
 			del(x[0])
 			for j in x:
 				word.append(j)
-		if i.startswith("-f"):
+		if i.startswith("-f "):
 			x= i.split()
 			del(x[0])
 			for j in x:
@@ -223,6 +269,11 @@ def splitting_elements(command):
 			symbols_verification(symbols)
 		if i.startswith("-t"):
 			space = "	"
+		if i.startswith("-func"):
+			x= i.split()
+			del(x[0])
+			for j in x:
+				function.append(j)
 
 	if len(ifiles) == 0 and len(ifolder) == 0:
 		print("Inorder to use the application, you need to use '-i' or '-f' command.")
@@ -230,104 +281,124 @@ def splitting_elements(command):
 	if len(ofiles) > 0 and len(word) > 0:
 		print("You can't use '-o' and '-aw' commands together")
 		sys.exit()
-	return ifiles, ofiles, word, ifolder, ofolder, symbols
+	if len(ifolder) == 0 and len(function) > 0:
+		print("You can not use '-func' command without '-f' command")
+		sys.exit()
+	return ifiles, ofiles, word, ifolder, ofolder, symbols, function
 
 
 def performing_operations(command):
-#		verification(command)
 #calling functions which will return a tuple containing lists for every initiallized symbols
-		a = splitting_elements(command)
-		ifiles = a[0]
-		ofiles = a[1]
-		word = a[2]
-		ifolder = a[3]
-		ofolder = a[4]
-		symbols = a[5]
+	a = splitting_elements(command)
+	ifiles = a[0]
+	ofiles = a[1]
+	word = a[2]
+	ifolder = a[3]
+	ofolder = a[4]
+	symbols = a[5]
+	function = a[6]
+
 #checking the 'ifiles' length to ensure that the user have given file name(s)
-		if len(ifiles) > 0:
-			for i in range(0, len(ifiles)):
-				if ifiles[i].endswith(".py"):
+	if len(ifiles) > 0:
+		for i in range(0, len(ifiles)):
+			if ifiles[i].endswith(".py"):
 #Taking a file from 'ifiles' list, indenting the code and then returning it into a string
-					x = add_indentation(ifiles[i], symbols)
+				x = add_indentation(ifiles[i], symbols)
+#Copying the code in a seperate file, incase user have given '-o' symbol followed by output file names
+				if len(ofiles) > 0:
+					if len(ofiles) >= len(ifiles):
+						copy_code(ofiles[i], x)
+					else:
+						print("Insufficient output file names")
+						exit()
+#creating new files and Copying the code in that file, incase user have given '-aw' symbol followed by the word to be added as a prefix in the new file names
+				elif len(word) > 0:
+					addword = add_prefix(ifiles[i], word)
+					y = copy_code(addword, x)
+#Copying the code in the same file
+				else:
+					y = copy_code(ifiles[i], x)
+			else:
+				print("The file name must contain '.py' extention", ifiles[i])
+	if len(ifolder) > 0 and len(ofolder) == 0 and len(function) == 0:
+		for i in range(0, len(ifolder)):
+			try:
+				folder = path_verification(ifolder[i])
+#changing current working directory to the folder given by the user and listing all the files present over there.
+				os.chdir(folder)
+				flst = os.listdir()
+			except:
+				continue
+			for j in range(0, len(flst)):
+				if flst[j].endswith(".py"):
+					os.chdir(folder)
+					x = add_indentation(flst[j], symbols)
 #Copying the code in a seperate file, incase user have given '-o' symbol followed by output file names
 					if len(ofiles) > 0:
-						if len(ofiles) >= len(ifiles):
-							copy_code(ofiles[i], x)
+						if len(ofiles) >= len(flst):
+							y = copy_code(ofiles[j], x)
 						else:
 							print("Insufficient output file names")
 							exit()
 #creating new files and Copying the code in that file, incase user have given '-aw' symbol followed by the word to be added as a prefix in the new file names
 					elif len(word) > 0:
-						addword = add_prefix(ifiles[i], word)
+						addword = add_prefix(flst[j], word)
 						y = copy_code(addword, x)
 #Copying the code in the same file
 					else:
-						y = copy_code(ifiles[i], x)
+						y = copy_code(flst[j], x)
 				else:
-					print("The file name must contain '.py' extention", ifiles[i])
-		if len(ifolder) > 0 and len(ofolder) == 0:
-			for i in range(0, len(ifolder)):
-				try:
-					folder = path_verification(ifolder[i])
-#changing current working directory to the folder given by the user and listing all the files present over there.
-					os.chdir(folder)
-					flst = os.listdir()
-				except:
-					continue
-				for j in range(0, len(flst)):
-					if flst[j].endswith(".py"):
-						os.chdir(folder)
-						x = add_indentation(flst[j], symbols)
-#Copying the code in a seperate file, incase user have given '-o' symbol followed by output file names
-						if len(ofiles) > 0:
-							if len(ofiles) >= len(flst):
-								y = copy_code(ofiles[j], x)
-							else:
-								print("Insufficient output file names")
-								exit()
-#creating new files and Copying the code in that file, incase user have given '-aw' symbol followed by the word to be added as a prefix in the new file names
-						elif len(word) > 0:
-							addword = add_prefix(flst[j], word)
-							y = copy_code(addword, x)
-#Copying the code in the same file
-						else:
-							y = copy_code(flst[j], x)
-					else:
-						print("Your file name must contain '.py' extention", flst[j])
+					print("Your file name must contain '.py' extention", flst[j])
 #To ensure that the user wants to work on a folder and they want their indented files in a new folder
-		if len(ifolder) > 0 and len(ofolder) > 0:
-			for i in range(0, len(ifolder)):
-				try:
-					folder = path_verification(ifolder[i])
-					os.chdir(folder)
-					flst = os.listdir()
-				except:
-					continue
-				try:
-					newdir = make_dir(ofolder[i])
-				except:
-					continue
+	if len(ifolder) > 0 and len(ofolder) > 0 and len(function) == 0:
+		for i in range(0, len(ifolder)):
+			try:
+				folder = path_verification(ifolder[i])
+				os.chdir(folder)
+				flst = os.listdir()
+			except:
+				continue
+			try:
+				newdir = make_dir(ofolder[i])
+			except:
+				continue
 
-				for j in range(0, len(flst)):
-					if flst[j].endswith(".py"):
-						os.chdir(folder)
-						x = add_indentation(flst[j], symbols)
+			for j in range(0, len(flst)):
+				if flst[j].endswith(".py"):
+					os.chdir(folder)
+					x = add_indentation(flst[j], symbols)
 #Copying the code in a seperate file, incase user have given '-o' symbol followed by output file names
-						if len(ofiles) > 0:
-							if len(ofiles) >= len(flst):
-								os.chdir(newdir)
-								y = copy_code(ofiles[j], x)
-							else:
-								print("Insufficient output file names")
-								exit()
-#creating new files and Copying the code in that file, incase user have given '-aw' symbol followed by the word to be added as a prefix in the new file names
-						elif len(word) > 0:
-							addword = add_prefix(flst[j], word)
+					if len(ofiles) > 0:
+						if len(ofiles) >= len(flst):
 							os.chdir(newdir)
-							y = copy_code(addword, x)
-#Copying the code in the same file
+							y = copy_code(ofiles[j], x)
 						else:
-							os.chdir(newdir)
-							y = copy_code(flst[j], x)
+							print("Insufficient output file names")
+							exit()
+#creating new files and Copying the code in that file, incase user have given '-aw' symbol followed by the word to be added as a prefix in the new file names
+					elif len(word) > 0:
+						addword = add_prefix(flst[j], word)
+						os.chdir(newdir)
+						y = copy_code(addword, x)
+#Copying the code in the same file
 					else:
-						print("Your file name must containg '.py' extention", flst[j])
+						os.chdir(newdir)
+						y = copy_code(flst[j], x)
+				else:
+					print("Your file name must containg '.py' extention", flst[j])
+#Code block for searching perticular function in a file(s)
+	if len(ifolder) > 0 and len(ofolder) == 0 and len(function) >= 0:
+		for i in range(0, len(ifolder)):
+			try:
+				folder = path_verification(ifolder[i])
+#changing current working directory to the folder given by the user and listing all the files present over there.
+				os.chdir(folder)
+				flst = os.listdir()
+			except:
+				continue
+			for j in range(0, len(flst)):
+				if flst[j].endswith(".py"):
+					os.chdir(folder)
+					find_function(flst[j], function)
+				else:
+					print("Your file name must contain '.py' extention", flst[j])
