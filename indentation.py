@@ -7,6 +7,7 @@ __author__= "Arkam, Rohit, Santosh "
 
 import sys
 import indentationlib
+import searchlib as search
 
 def main(argv):
 #If the length is less than 2, then that mean, user is using an python IDE to exicute the program.
@@ -14,9 +15,10 @@ def main(argv):
 		try:
 			command = input("Please enter the command: ")
 			cmd = command.split()
-			if cmd[0].lower() == "-h" or cmd[0].lower() == "help":
+			if "-h" in cmd or "-H" in cmd:
 				indentationlib.display_help()
-#				sys.exit()
+			elif "-s" in cmd or "-S" in cmd:
+				search.perform_search()
 			else:
 				indentationlib.verification(cmd)
 				indentationlib.performing_operations(cmd)
@@ -25,9 +27,10 @@ def main(argv):
 #If the length is greater than 2 then that mean, user have exicuted the program on CMD with other parameters
 	else:
 		del(argv[0])
-		if "-h" in argv:
+		if "-h" in argv or "-H" in argv:
 			indentationlib.display_help()
-#			sys.exit()
+		elif "-s" in argv or "-S" in argv:
+			search.perform_search()
 		else:
 			indentationlib.verification(argv)
 			indentationlib.performing_operations(argv)
